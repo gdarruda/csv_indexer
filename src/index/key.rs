@@ -8,3 +8,13 @@ impl Key {
         Key{value: key.to_string()}
     }
 }
+
+mod tests {
+    use super::*;
+
+    #[test]
+    fn create() {
+        let key = Key::create("Sample");
+        assert_eq!(key.value, "Sample");
+    }
+}

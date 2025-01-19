@@ -105,10 +105,10 @@ mod tests {
         node.add_key(0, Key::create("A"));
         assert_eq!(node.keys[0].value, first_key.value);
 
-        node.add_key(1, Key::create("B"));
+        node.add_key(1, Key::create("C"));
         assert_eq!(node.keys[1].value, last_key.value);
 
-        node.add_key(1, Key::create("C"));
+        node.add_key(1, Key::create("B"));
         assert_eq!(node.keys[1].value, second_key.value);
         assert_eq!(node.keys[2].value, last_key.value);
     }
