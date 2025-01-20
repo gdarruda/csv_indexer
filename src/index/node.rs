@@ -62,9 +62,7 @@ impl Node {
 
         left.keys.resize(
             order - 1,
-            Key {
-                value: '_'.to_string(),
-            },
+            Key::create(""),
         );
 
         if !left.leaf {

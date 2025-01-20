@@ -55,13 +55,13 @@ fn main() {
     //     },
     // ];
 
-    tree.insert(Key { value: 'B'.to_string() });
-    tree.insert(Key { value: 'Q'.to_string() });
-    tree.insert(Key { value: 'L'.to_string() });
-    tree.insert(Key { value: 'F'.to_string() });
-    tree.insert(Key { value: 'a'.to_string() });
-    tree.insert(Key { value: 'b'.to_string() });
-    tree.insert(Key { value: 'c'.to_string() });
-    tree.insert(Key { value: 'd'.to_string() });
+    tree.insert(Key::create("B"));
+    tree.insert(Key::create("Q"));
+    tree.insert(Key::create("L"));
+    tree.insert(Key::create("F"));
+    tree.insert(Key::create("a"));
+    tree.insert(Key::create("b"));
+    tree.insert(Key::create("c"));
+    tree.insert(Key::create("d"));
 
 }
