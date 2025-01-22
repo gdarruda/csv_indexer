@@ -62,7 +62,7 @@ impl Node {
 
         left.keys.resize(
             order - 1,
-            Key::create(""),
+            Key::create("", (0,0)),
         );
 
         if !left.leaf {
@@ -91,22 +91,27 @@ impl Node {
 
 mod tests {
     use super::*;
+    const PLACEHOLDER : (u64, u64)= (0,0);
+
+    fn create_key(value: &str) -> Key {
+        Key::create(value, PLACEHOLDER)
+    }
 
     #[test]
     fn add_key() {
         let mut node = Node::empty(3, true);
 
-        let first_key = Key::create("A");
-        let second_key = Key::create("B");
-        let last_key = Key::create("C");
+        let first_key = create_key("A");
+        let second_key = create_key("B");
+        let last_key = create_key("C");
 
-        node.add_key(0, Key::create("A"));
+        node.add_key(0, create_key("A"));
         assert_eq!(node.keys[0].value, first_key.value);
 
-        node.add_key(1, Key::create("C"));
+        node.add_key(1, create_key("C"));
         assert_eq!(node.keys[1].value, last_key.value);
 
-        node.add_key(1, Key::create("B"));
+        node.add_key(1, create_key("B"));
         assert_eq!(node.keys[1].value, second_key.value);
         assert_eq!(node.keys[2].value, last_key.value);
     }
@@ -116,13 +121,13 @@ mod tests {
         let mut node = Node::empty(3, true);
 
         vec!["B", "D", "F"].iter().enumerate().for_each(|(i, s)| {
-            node.add_key(i, Key::create(s));
+            node.add_key(i, create_key(s));
         });
 
-        assert_eq!(node.find_position(&Key::create("A")), 0);
-        assert_eq!(node.find_position(&Key::create("C")), 1);
-        assert_eq!(node.find_position(&Key::create("E")), 2);
-        assert_eq!(node.find_position(&Key::create("G")), 3);
+        assert_eq!(node.find_position(&create_key("A")), 0);
+        assert_eq!(node.find_position(&create_key("C")), 1);
+        assert_eq!(node.find_position(&create_key("E")), 2);
+        assert_eq!(node.find_position(&create_key("G")), 3);
     }
 
     #[test]
@@ -140,12 +145,12 @@ mod tests {
         let mut node = Node::empty(2, true);
 
         vec!["A", "B"].iter().enumerate().for_each(|(i, s)| {
-            node.add_key(i, Key::create(s));
+            node.add_key(i, create_key(s));
         });
 
         assert!(!node.is_full(order));
 
-        node.add_key(2, Key::create("C"));
+        node.add_key(2, create_key("C"));
 
         assert!(node.is_full(order));
     }
@@ -159,7 +164,7 @@ mod tests {
             .iter()
             .enumerate()
             .for_each(|(i, s)| {
-                node.add_key(i, Key::create(s));
+                node.add_key(i, create_key(s));
             });
 
         let mut father = Node::empty(order, false);
@@ -177,7 +182,7 @@ mod tests {
         let mut node = Node::empty(order, true);
 
         vec!["A", "Z", "C", "J", "E"].iter().for_each(|s| {
-            node.insert(Key::create(s), order);
+            node.insert(create_key(s), order);
         });
 
         vec!["A", "C", "E", "J", "Z"]
