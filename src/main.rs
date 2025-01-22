@@ -1,67 +1,27 @@
 mod index;
+mod csv;
 
-use crate::index::btree::BTree;
-use crate::index::key::Key;
+use std::fs::File;
 
-fn main() {
-    let order =3;
-    let mut tree = BTree::create(order);
+fn main() -> std::io::Result<()> {
 
-    // tree.root.keys = vec![
-    //     Key { value: 'G'.to_string() },
-    //     Key { value: 'M'.to_string() },
-    //     Key { value: 'P'.to_string() },
-    //     Key { value: 'X'.to_string() },
-    // ];
+    let filename = "resources/sample.csv";
+    let mut file = File::open(filename)?;
+    let mut tree = index::btree::BTree::create(3);
 
-    // tree.root.leaf = false;
+    csv::index_file(&file, &mut tree);
 
-    // tree.root.children = vec![
-    //     {
-    //         let mut child = Node::empty(order, true);
-    //         child.keys = vec![
-    //             Key { value: 'A' },
-    //             Key { value: 'C' },
-    //             Key { value: 'D' },
-    //             Key { value: 'E' },
-    //         ];
-    //         child
-    //     },
-    //     {
-    //         let mut child = Node::empty(order, true);
-    //         child.keys = vec![Key { value: 'J' }, Key { value: 'K' }];
-    //         child
-    //     },
-    //     {
-    //         let mut child = Node::empty(order, true);
-    //         child.keys = vec![Key { value: 'N' }, Key { value: 'O' }];
-    //         child
-    //     },
-    //     {
-    //         let mut child = Node::empty(order, true);
-    //         child.keys = vec![
-    //             Key { value: 'R' },
-    //             Key { value: 'S' },
-    //             Key { value: 'T' },
-    //             Key { value: 'U' },
-    //             Key { value: 'V' },
-    //         ];
-    //         child
-    //     },
-    //     {
-    //         let mut child = Node::empty(order, true);
-    //         child.keys = vec![Key { value: 'Y' }, Key { value: 'Z' }];
-    //         child
-    //     },
-    // ];
+    let key_value = "10";
 
-    tree.insert(Key::create("B"));
-    tree.insert(Key::create("Q"));
-    tree.insert(Key::create("L"));
-    tree.insert(Key::create("F"));
-    tree.insert(Key::create("a"));
-    tree.insert(Key::create("b"));
-    tree.insert(Key::create("c"));
-    tree.insert(Key::create("d"));
+    match tree.search(key_value) {
+        None => {println!("Key not foundL {}", key_value)},
+        Some(key) => {
+            match csv::read_line(&mut file, key.position) {
+                Err(e) => {println!("Error: {}", e)},
+                Ok(line) => {println!("Found line: {}", line)}
+            }
+        }
+    };
 
+    Ok(())
 }

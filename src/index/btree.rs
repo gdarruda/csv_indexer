@@ -1,6 +1,5 @@
 use crate::index::key::Key;
 use crate::index::node::Node;
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct BTree {
@@ -54,10 +53,10 @@ impl BTree {
 
 mod tests {
     use super::*;
-    const PLACEHOLDER : (u64, u64)= (0,0);
+    const _PLACEHOLDER : (u64, u64)= (0,0);
 
-    fn create_key(value: &str) -> Key {
-        Key::create(value, PLACEHOLDER)
+    fn _create_key(value: &str) -> Key {
+        Key::create(value, _PLACEHOLDER)
     }
     
     fn _valid_tree(node: &Node, limit: Option<&String>) -> bool {
@@ -113,10 +112,10 @@ mod tests {
         let mut tree = BTree::create(order);
 
         tree.root.keys = vec![
-            create_key("G"),
-            create_key("M"),
-            create_key("P"),
-            create_key("X"),
+            _create_key("G"),
+            _create_key("M"),
+            _create_key("P"),
+            _create_key("X"),
         ];
 
         tree.root.leaf = false;
@@ -125,45 +124,45 @@ mod tests {
             {
                 let mut child = Node::empty(order, true);
                 child.keys = vec![
-                    create_key("A"),
-                    create_key("C"),
-                    create_key("D"),
-                    create_key("E"),
+                    _create_key("A"),
+                    _create_key("C"),
+                    _create_key("D"),
+                    _create_key("E"),
                 ];
                 child
             },
             {
                 let mut child = Node::empty(order, true);
-                child.keys = vec![create_key("J"), create_key("K")];
+                child.keys = vec![_create_key("J"), _create_key("K")];
                 child
             },
             {
                 let mut child = Node::empty(order, true);
-                child.keys = vec![create_key("N"), create_key("O")];
+                child.keys = vec![_create_key("N"), _create_key("O")];
                 child
             },
             {
                 let mut child = Node::empty(order, true);
                 child.keys = vec![
-                    create_key("R"),
-                    create_key("S"),
-                    create_key("T"),
-                    create_key("U"),
-                    create_key("V"),
+                    _create_key("R"),
+                    _create_key("S"),
+                    _create_key("T"),
+                    _create_key("U"),
+                    _create_key("V"),
                 ];
                 child
             },
             {
                 let mut child = Node::empty(order, true);
-                child.keys = vec![create_key("Y"), create_key("Z")];
+                child.keys = vec![_create_key("Y"), _create_key("Z")];
                 child
             },
         ];
 
-        tree.insert(create_key("B"));
-        tree.insert(create_key("Q"));
-        tree.insert(create_key("L"));
-        tree.insert(create_key("F"));
+        tree.insert(_create_key("B"));
+        tree.insert(_create_key("Q"));
+        tree.insert(_create_key("L"));
+        tree.insert(_create_key("F"));
 
         assert!(_valid_tree(&tree.root, None));
     }
@@ -176,14 +175,14 @@ mod tests {
         let uuids: Vec<String> = (0..100).map(|_| Uuid::new_v4().to_string()).collect();
 
         for uuid in &uuids {
-            tree.insert(create_key(uuid));
+            tree.insert(_create_key(uuid));
 
             assert!(match tree.search(uuid) {
                 None => {false},
                 Some(key) => {key.value == *uuid}
             });
         }
-
+        use uuid::Uuid;
         for uuid in uuids {
             assert!(match tree.search(&uuid) {
                 None => {false},
