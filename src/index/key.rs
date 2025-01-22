@@ -14,6 +14,7 @@ impl Key {
 }
 
 mod tests {
+    #[cfg(test)]
     use super::*;
 
     #[test]

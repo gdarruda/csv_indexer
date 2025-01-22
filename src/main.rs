@@ -11,10 +11,10 @@ fn main() -> std::io::Result<()> {
 
     csv::index_file(&file, &mut tree);
 
-    let key_value = "10";
+    let key_value = "71";
 
     match tree.search(key_value) {
-        None => {println!("Key not foundL {}", key_value)},
+        None => {println!("Key not found {}", key_value)},
         Some(key) => {
             match csv::read_line(&mut file, key.position) {
                 Err(e) => {println!("Error: {}", e)},
