@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
-use uuid::Uuid;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct BTree {
@@ -15,7 +14,7 @@ pub struct BTree {
 
 impl BTree {
     fn filename(&self) -> String {
-        format!("{}/{}.json", self.path, Uuid::new_v4().to_string())
+        format!("{}/btree.json", self.path)
     }
 
     fn save(&self) {
