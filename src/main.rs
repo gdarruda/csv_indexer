@@ -7,7 +7,7 @@ fn main() -> std::io::Result<()> {
 
     let filename = "resources/sample.csv";
     let mut file = File::open(filename)?;
-    let mut tree = index::btree::BTree::create(3);
+    let mut tree = index::btree::BTree::create(3, "btree_files");
 
     csv::index_file(&file, &mut tree);
 

@@ -1,13 +1,28 @@
 use crate::index::key::Key;
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
+use uuid::Uuid;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Node {
     pub keys: Vec<Key>,
-    pub children: Vec<Node>,
+    pub children: Vec<String>,
     pub leaf: bool,
+    pub filename: String,
 }
 
 impl Node {
+
+    fn filename() -> String {
+        format!("{}.json", Uuid::new_v4().to_string())
+    }
+
+    pub fn load(filename: &str) -> Node {
+        serde_json::from_slice(&fs::read(filename).unwrap()).unwrap()
+    }
+
     fn find_position(&self, key: &Key) -> usize {
         let mut idx = 0;
 
@@ -27,12 +42,19 @@ impl Node {
         idx
     }
 
+    pub fn save(&self) {
+        let mut file = File::create(&self.filename).unwrap();
+        file.write_all(serde_json::to_string(self).unwrap().as_bytes())
+            .unwrap();
+    }
+
     fn add_key(&mut self, idx: usize, key: Key) {
         if self.keys.len() == 0 {
             self.keys.push(key);
         } else {
             self.keys.insert(idx, key);
         }
+        self.save();
     }
 
     pub fn empty(order: usize, leaf: bool) -> Node {
@@ -40,6 +62,7 @@ impl Node {
             keys: Vec::with_capacity(2 * order - 1),
             children: Vec::with_capacity(2 * order),
             leaf,
+            filename: Node::filename(),
         }
     }
 
@@ -48,7 +71,7 @@ impl Node {
     }
 
     pub fn split(&mut self, pivot: usize, order: usize) {
-        let left = &mut self.children[pivot];
+        let left = &mut Node::load(&self.children[pivot]);
         let key = left.keys[order - 1].clone();
 
         let right = Node {
@@ -58,19 +81,24 @@ impl Node {
                 false => left.children[order..left.children.len()].to_owned(),
             },
             leaf: left.leaf,
+            filename: Node::filename(),
         };
 
-        left.keys.resize(
-            order - 1,
-            Key::create("", (0,0)),
-        );
+        right.save();
+
+        left.keys.resize(order - 1, Key::create("", (0, 0)));
 
         if !left.leaf {
-            left.children.resize(order, Node::empty(order, self.leaf));
+            left.children.resize(order, String::from(""));
         }
 
+        left.save();
+
         self.keys.insert(pivot, key);
-        self.children.insert(pivot + 1, right);
+        self.children.insert(pivot + 1, right.filename);
+
+        self.save()
+
     }
 
     pub fn insert(&mut self, key: Key, order: usize) {
@@ -79,19 +107,20 @@ impl Node {
         } else {
             let mut idx = self.find_position(&key);
 
-            if self.children[idx].is_full(order) {
+            if Node::load(&self.children[idx]).is_full(order) {
                 self.split(idx, order);
                 idx = self.find_position(&key);
             }
 
-            self.children[idx].insert(key, order);
+            Node::load(&self.children[idx]).insert(key, order);
+
         }
     }
 }
 
 mod tests {
     use super::*;
-    const _PLACEHOLDER : (u64, u64)= (0,0);
+    const _PLACEHOLDER: (u64, u64) = (0, 0);
 
     fn _create_key(value: &str) -> Key {
         Key::create(value, _PLACEHOLDER)
@@ -168,12 +197,12 @@ mod tests {
             });
 
         let mut father = Node::empty(order, false);
-        father.children.push(node);
+        father.children.push(node.filename);
         father.split(0, order);
 
         assert_eq!(father.keys.len(), 1);
-        assert_eq!(father.children[0].keys.len(), 2);
-        assert_eq!(father.children[1].keys.len(), 2);
+        assert_eq!(Node::load(&father.children[0]).keys.len(), 2);
+        assert_eq!(Node::load(&father.children[1]).keys.len(), 2);
     }
 
     #[test]

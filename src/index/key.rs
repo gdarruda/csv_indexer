@@ -1,4 +1,6 @@
-#[derive(Clone)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Key {
     pub value: String,
     pub position: (u64, u64),
