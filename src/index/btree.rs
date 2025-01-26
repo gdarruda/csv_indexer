@@ -29,7 +29,7 @@ impl BTree {
         fs::create_dir(path).unwrap();
 
         let btree = BTree {
-            root: Node::empty(order, true),
+            root: Node::empty(order, true, path),
             path: path.to_string(),
             order,
         };
@@ -40,13 +40,14 @@ impl BTree {
 
     pub fn insert(&mut self, key: Key) {
         if self.root.is_full(self.order) {
-            let mut new_root = Node::empty(self.order, false);
+            let mut new_root = Node::empty(self.order, false, &self.path);
             new_root.children.push(self.root.clone().filename);
-            new_root.split(0, self.order);
+            new_root.split(0, self.order, &self.path);
             self.root = new_root;
         }
 
-        self.root.insert(key, self.order);
+        self.root.insert(key, self.order, &self.path);
+        self.save();
     }
 
     fn search_tree(node: &Node, value: String) -> Option<Key> {
@@ -124,16 +125,20 @@ mod tests {
     #[test]
     fn create() {
         let order = 3;
-        let tree = BTree::create(order, "files_test_insert");
+        let path = "btree_test_create";
+        let tree = BTree::create(order, path);
 
         assert_eq!(tree.order, order);
         assert_eq!(tree.root.leaf, true);
+
+        fs::remove_dir_all(path).unwrap();
     }
 
     #[test]
     fn insert() {
+        let path = "btree_test_insert";
         let order = 3;
-        let mut tree = BTree::create(order, "files_test_insert");
+        let mut tree = BTree::create(order, path);
 
         tree.root.keys = vec![
             _create_key("G"),
@@ -147,7 +152,7 @@ mod tests {
 
         tree.root.children = vec![
             {
-                let mut child = Node::empty(order, true);
+                let mut child = Node::empty(order, true, path);
                 child.keys = vec![
                     _create_key("A"),
                     _create_key("C"),
@@ -158,19 +163,19 @@ mod tests {
                 child.filename
             },
             {
-                let mut child = Node::empty(order, true);
+                let mut child = Node::empty(order, true, path);
                 child.keys = vec![_create_key("J"), _create_key("K")];
                 child.save();
                 child.filename
             },
             {
-                let mut child = Node::empty(order, true);
+                let mut child = Node::empty(order, true, path);
                 child.keys = vec![_create_key("N"), _create_key("O")];
                 child.save();
                 child.filename
             },
             {
-                let mut child = Node::empty(order, true);
+                let mut child = Node::empty(order, true, path);
                 child.keys = vec![
                     _create_key("R"),
                     _create_key("S"),
@@ -182,7 +187,7 @@ mod tests {
                 child.filename
             },
             {
-                let mut child = Node::empty(order, true);
+                let mut child = Node::empty(order, true, path);
                 child.keys = vec![_create_key("Y"), _create_key("Z")];
                 child.save();
                 child.filename
@@ -195,13 +200,16 @@ mod tests {
         tree.insert(_create_key("F"));
 
         assert!(_valid_tree(&tree.root, None));
+
+        fs::remove_dir_all(path).unwrap();
     }
 
     #[test]
     fn search() {
         use uuid::Uuid;
         let order = 3;
-        let mut tree = BTree::create(order, "files_test_search");
+        let path = "btree_test_search";
+        let mut tree = BTree::create(order, path);
 
         let uuids: Vec<String> = (0..100).map(|_| Uuid::new_v4().to_string()).collect();
 
@@ -242,5 +250,8 @@ mod tests {
             }
             Some(result) => result,
         });
+
+        fs::remove_dir_all(path).unwrap();
+
     }
 }
