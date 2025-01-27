@@ -259,7 +259,7 @@ mod tests {
 
     #[test]
     fn load() {
-        let path = "btree_test_create";
+        let path = "btree_test_load";
         let order = 3;
         let mut tree = BTree::create(order, path);
 
