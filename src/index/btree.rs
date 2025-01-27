@@ -23,8 +23,12 @@ impl BTree {
             .unwrap();
     }
 
-    pub fn create(order: usize, path: &str) -> BTree {
+    fn load(path: &str) -> BTree {
+        let filename = format!("{}/btree.json", path);
+        serde_json::from_slice(&fs::read(filename).unwrap()).unwrap()
+    }
 
+    pub fn create(order: usize, path: &str) -> BTree {
         fs::create_dir(path).unwrap();
 
         let btree = BTree {
@@ -76,6 +80,7 @@ impl BTree {
 
 mod tests {
     use super::*;
+    use uuid::Uuid;
     const _PLACEHOLDER: (u64, u64) = (0, 0);
 
     fn _create_key(value: &str) -> Key {
@@ -205,7 +210,6 @@ mod tests {
 
     #[test]
     fn search() {
-        use uuid::Uuid;
         let order = 3;
         let path = "btree_test_search";
         let mut tree = BTree::create(order, path);
@@ -251,6 +255,47 @@ mod tests {
         });
 
         fs::remove_dir_all(path).unwrap();
+    }
+
+    #[test]
+    fn load() {
+        let path = "btree_test_create";
+        let order = 3;
+        let mut tree = BTree::create(order, path);
+
+        let uuids: Vec<String> = (0..100).map(|_| Uuid::new_v4().to_string()).collect();
+
+        for uuid in &uuids {
+            tree.insert(_create_key(uuid));
+
+            assert!(match tree.search(uuid) {
+                None => {
+                    false
+                }
+                Some(key) => {
+                    key.value == *uuid
+                }
+            });
+        }
+
+        let tree_loaded = BTree::load(path);
+
+        let none_found: Option<bool> = (0..100)
+            .map(|_| match tree_loaded.search(&Uuid::new_v4().to_string()) {
+                None => true,
+                Some(_) => false,
+            })
+            .reduce(|acc, e| acc & e);
+
+        assert!(match none_found {
+            None => {
+                false
+            }
+            Some(result) => result,
+        });
+
+        fs::remove_dir_all(path).unwrap();
 
     }
+
 }
