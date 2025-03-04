@@ -23,7 +23,7 @@ impl BTree {
             .unwrap();
     }
 
-    fn load(path: &str) -> BTree {
+    pub fn load(path: &str) -> BTree {
         let filename = format!("{}/btree.json", path);
         serde_json::from_slice(&fs::read(filename).unwrap()).unwrap()
     }
